@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#030712">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>BinaryMaster Pro - Convertisseur & Calculateur</title>
+<style>
+:root{--bg:#030712;--card:rgba(17,24,39,.85);--bd:rgba(255,255,255,.1);--cy:#22d3ee;--bl:#38bdf8;--pu:#a78bfa;--dg:#f43f5e;--wr:#fbbf24;--tx:#f9fafb;--mu:#9ca3af}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:radial-gradient(circle at top,#0f172a 0%,var(--bg) 75%);background-color:var(--bg);color:var(--tx);margin:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center}
+header{width:100%;max-width:480px;padding:18px 20px 8px;text-align:center}
+header h1{font-size:21px;font-weight:800;margin:0;background:linear-gradient(135deg,var(--cy),var(--pu));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-bar{display:flex;background:rgba(15,23,42,.95);padding:4px;border-radius:14px;border:1px solid var(--bd);width:94%;max-width:460px;margin:10px 0 14px}
+.nav-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--mu);font-size:13px;font-weight:600;border-radius:10px;cursor:pointer}
+.nav-btn.active{background:linear-gradient(135deg,var(--cy),var(--bl));color:var(--bg);box-shadow:0 4px 15px rgba(34,211,238,.3)}
+.app-container{width:94%;max-width:460px;flex:1;padding-bottom:35px}
+.card{background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--bd);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.input-group{margin-bottom:14px}
+label,.lbl{display:block;font-size:11px;color:var(--mu);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+input{width:100%;background:rgba(3,7,18,.8);border:1px solid var(--bd);border-radius:12px;padding:13px;color:var(--cy);font-size:18px;font-family:'Courier New',monospace;font-weight:bold;outline:none;letter-spacing:2px}
+input:focus{border-color:var(--cy)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.seg button{padding:11px 2px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--mu);font-size:12px;font-weight:700;cursor:pointer}
+.seg button.active{background:linear-gradient(135deg,var(--cy),var(--bl));color:var(--bg);border-color:transparent}
+.seg.to button.active{background:linear-gradient(135deg,var(--pu),var(--bl))}
+.keyboard{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.key-btn{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:var(--bl);padding:14px 4px;border-radius:12px;font-size:18px;font-weight:800;cursor:pointer}
+.key-btn:active{background:rgba(56,189,248,.3);transform:scale(.96)}
+.key-del{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3);color:var(--wr)}
+.key-clear{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.3);color:var(--dg);grid-column:span 4}
+.results-grid{display:flex;flex-direction:column;gap:10px;margin-top:15px}
+.res-item{background:rgba(3,7,18,.5);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+.res-item:active{background:rgba(34,211,238,.1)}
+.res-label{font-size:12px;color:var(--mu);font-weight:600;flex-shrink:0}
+.res-val{font-size:18px;font-family:'Courier New',monospace;color:#34d399;font-weight:700;word-break:break-all;text-align:right}
+.res-item.sel{border-color:rgba(167,139,250,.7);background:rgba(167,139,250,.1)}
+.res-item.src{border-color:rgba(34,211,238,.6);background:rgba(34,211,238,.08)}
+.hint{font-size:11px;color:var(--mu);text-align:center;margin:10px 0 0}
+.error{color:var(--dg);font-size:12px;margin:8px 0 0;min-height:16px}
+.calc-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.calc-btn{background:rgba(255,255,255,.05);border:1px solid var(--bd);color:var(--tx);padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.calc-btn:active{background:rgba(255,255,255,.15)}
+.sec-title{font-size:13px;font-weight:700;color:var(--cy);margin:0 0 10px}
+.scroll-x{overflow-x:auto;padding-bottom:6px}
+.pos-table{display:flex;gap:6px;width:max-content;min-width:100%;justify-content:flex-end}
+.pos-col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:46px;background:rgba(3,7,18,.55);border:1px solid var(--bd);border-radius:10px;padding:8px 4px}
+.pos-col .exp{font-size:10px;color:var(--mu)}
+.pos-col .w{font-size:12px;color:var(--pu);font-family:'Courier New',monospace;font-weight:700}
+.pos-col .b{font-size:20px;font-family:'Courier New',monospace;font-weight:800;color:var(--mu)}
+.pos-col .p{font-size:12px;font-family:'Courier New',monospace;color:var(--mu)}
+.pos-col.on{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.08)}
+.pos-col.on .b,.pos-col.on .p{color:#34d399}
+.sum-line{margin:12px 0 0;font-family:'Courier New',monospace;font-size:14px;line-height:1.6;word-break:break-word}
+.sum-line b{color:#34d399}
+.grp{display:flex;gap:6px;width:max-content;min-width:100%;justify-content:flex-end}
+.grp div{background:rgba(3,7,18,.55);border:1px solid var(--bd);border-radius:10px;padding:6px 8px;text-align:center;min-width:54px}
+.grp .g{font-family:'Courier New',monospace;font-size:14px;color:var(--bl);font-weight:700}
+.grp .r{font-family:'Courier New',monospace;font-size:16px;color:#34d399;font-weight:800}
+.steps{font-family:'Courier New',monospace;font-size:13px;display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto}
+.step{background:rgba(3,7,18,.55);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;gap:8px}
+.step b{color:#34d399}
+.note{font-size:12px;color:var(--mu);margin:0 0 10px;line-height:1.5}
+.empty{font-size:12px;color:var(--mu);margin:0}
+.toast{position:fixed;bottom:20px;left:50%;background:#1e293b;color:var(--cy);border:1px solid var(--cy);padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transform:translate(-50%,15px);transition:all .3s ease;pointer-events:none;z-index:1000}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<header><h1>BinaryMaster Pro</h1></header>
+
+<div class="nav-bar">
+  <button class="nav-btn active" data-tab="converter">Convertisseur</button>
+  <button class="nav-btn" data-tab="operations">Opérations bits</button>
+</div>
+
+<div class="app-container">
+  <div id="view-converter">
+    <div class="card">
+      <span class="lbl">1. Mon nombre est en</span>
+      <div class="seg" id="segFrom">
+        <button data-b="2" class="active">Binaire</button>
+        <button data-b="8">Octal</button>
+        <button data-b="10">Décimal</button>
+        <button data-b="16">Hexa</button>
+      </div>
+
+      <span class="lbl">2. Convertir en</span>
+      <div class="seg to" id="segTo">
+        <button data-b="2">Binaire</button>
+        <button data-b="8">Octal</button>
+        <button data-b="10" class="active">Décimal</button>
+        <button data-b="16">Hexa</button>
+      </div>
+
+      <div class="input-group">
+        <label for="numInput" id="inLabel">3. Entrer le nombre</label>
+        <input type="text" id="numInput" autocomplete="off" autocapitalize="characters" inputmode="none" maxlength="128">
+      </div>
+      <div class="keyboard" id="keyboard"></div>
+
+      <div class="results-grid">
+        <div class="res-item" id="resBox">
+          <span class="res-label" id="resLabel">Résultat</span>
+          <span class="res-val" id="resVal">0</span>
+        </div>
+      </div>
+      <p class="hint">Touchez le résultat pour le copier</p>
+    </div>
+
+    <div class="card">
+      <p class="sec-title">Résultats dans toutes les bases</p>
+      <div class="results-grid" id="allRes" style="margin-top:0"></div>
+      <p class="hint">Cyan : base de départ · Violet : base choisie · Touchez pour copier</p>
+    </div>
+
+    <div id="details"></div>
+  </div>
+
+  <div id="view-operations" style="display:none">
+    <div class="card">
+      <div class="input-group">
+        <label for="valA">Valeur A (binaire)</label>
+        <input type="text" id="valA" value="1010" inputmode="numeric" autocomplete="off" maxlength="256">
+      </div>
+      <div class="input-group">
+        <label for="valB">Valeur B (binaire)</label>
+        <input type="text" id="valB" value="1100" inputmode="numeric" autocomplete="off" maxlength="256">
+      </div>
+      <div class="calc-panel">
+        <button class="calc-btn" data-op="AND">A AND B</button>
+        <button class="calc-btn" data-op="OR">A OR B</button>
+        <button class="calc-btn" data-op="XOR">A XOR B</button>
+        <button class="calc-btn" data-op="ADD">A + B</button>
+      </div>
+      <p class="error" id="opError"></p>
+      <div class="results-grid" style="margin-top:5px">
+        <div class="res-item" data-copy="resBin"><span class="res-label">Binaire</span><span class="res-val" id="resBin">-</span></div>
+        <div class="res-item" data-copy="resOpDec"><span class="res-label">Décimal</span><span class="res-val" id="resOpDec">-</span></div>
+      </div>
+      <p class="hint">Touchez un résultat pour le copier</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Copié !</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const DIGITS = '0123456789ABCDEF';
+const NAMES = {2:'binaire', 8:'octal', 10:'décimal', 16:'hexadécimal'};
+const PH = {2:'Ex : 101011', 8:'Ex : 53', 10:'Ex : 43', 16:'Ex : 2B'};
+let from = 2, to = 10, toastTimer;
+
+const sym = d => DIGITS[d];
+function clean(str, base) {
+  const ok = DIGITS.slice(0, base);
+  return str.toUpperCase().split('').filter(c => ok.includes(c)).join('');
+}
+function parseBig(str, base) {
+  let n = 0n; const b = BigInt(base);
+  for (const c of str) n = n * b + BigInt(DIGITS.indexOf(c));
+  return n;
+}
+const toBase = (n, base) => n.toString(base).toUpperCase();
+
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function copyText(text) {
+  if (!text || text === '-') return;
+  const done = () => showToast('Copié !');
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { showToast('Copie impossible'); }
+    ta.remove();
+  };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+
+/* ---------- Clavier selon la base de départ ---------- */
+function buildKeyboard() {
+  let html = '';
+  for (let i = 0; i < from; i++) html += `<button class="key-btn" data-key="${sym(i)}">${sym(i)}</button>`;
+  html += '<button class="key-btn key-del" data-key="del">⌫</button>';
+  html += '<button class="key-btn key-clear" data-key="clear">Effacer</button>';
+  $('keyboard').innerHTML = html;
+  $('numInput').placeholder = PH[from];
+  $('inLabel').textContent = '3. Entrer le nombre ' + NAMES[from];
+}
+
+function pressKey(k) {
+  const input = $('numInput');
+  if (k === 'del') input.value = input.value.slice(0, -1);
+  else if (k === 'clear') input.value = '';
+  else if (input.value.length < input.maxLength) input.value += k;
+  update();
+}
+
+/* ---------- Blocs de détail ---------- */
+function card(title, body, note) {
+  return `<div class="card"><p class="sec-title">${title}</p>${note ? `<p class="note">${note}</p>` : ''}${body}</div>`;
+}
+
+function positionalCard(str, base) {
+  const len = str.length;
+  let cols = '', terms = [];
+  for (let i = 0; i < len; i++) {
+    const exp = len - 1 - i;
+    const d = DIGITS.indexOf(str[i]);
+    const w = BigInt(base) ** BigInt(exp);
+    const p = BigInt(d) * w;
+    if (d) terms.push(base === 2 ? `${w}` : `${d}×${w}`);
+    cols += `<div class="pos-col${d ? ' on' : ''}"><span class="exp">${base}<sup>${exp}</sup></span><span class="w">${w}</span><span class="b">${str[i]}</span><span class="p">${p}</span></div>`;
+  }
+  const val = parseBig(str, base);
+  const sum = `<p class="sum-line">${terms.length ? terms.join(' + ') : '0'} = <b>${val}</b></p>`;
+  return card(`${cap(NAMES[base])} → décimal`, `<div class="scroll-x"><div class="pos-table">${cols}</div></div>${sum}`,
+    'Chaque chiffre est multiplié par la puissance de la base qui correspond à sa position, puis on additionne.');
+}
+
+function divisionCard(n, base) {
+  const b = BigInt(base);
+  let rows = '', cur = n, count = 0, rems = [];
+  if (n === 0n) { rows = `<div class="step"><span>0 ÷ ${base} = 0</span><b>reste 0</b></div>`; rems = ['0']; }
+  while (cur > 0n && count < 300) {
+    const q = cur / b, r = Number(cur % b);
+    rows += `<div class="step"><span>${cur} ÷ ${base} = ${q}</span><b>reste ${r}${base === 16 && r > 9 ? ' (' + sym(r) + ')' : ''}</b></div>`;
+    rems.push(sym(r)); cur = q; count++;
+  }
+  const res = rems.slice().reverse().join('');
+  return card(`Décimal → ${NAMES[base]}`,
+    `<div class="steps">${rows}</div><p class="sum-line">Restes lus de bas en haut : <b>${res}</b></p>`,
+    `On divise le nombre par ${base} jusqu'à obtenir 0 ; les restes, lus du dernier au premier, donnent le résultat.`);
+}
+
+function groupsCard(str, size, base) {
+  const padded = str.padStart(Math.ceil(str.length / size) * size, '0');
+  let g = '';
+  for (let i = 0; i < padded.length; i += size) {
+    const part = padded.slice(i, i + size);
+    g += `<div><div class="g">${part}</div><div class="r">${toBase(BigInt('0b' + part), base)}</div></div>`;
+  }
+  return card(`Binaire → ${NAMES[base]}`, `<div class="scroll-x"><div class="grp">${g}</div></div>`,
+    `Raccourci : on regroupe les bits par ${size} en partant de la droite, puis chaque groupe donne un chiffre.`);
+}
+
+function expandCard(str, base) {
+  const size = base === 8 ? 3 : 4;
+  let g = '';
+  for (const c of str) {
+    g += `<div><div class="g">${c}</div><div class="r">${DIGITS.indexOf(c).toString(2).padStart(size, '0')}</div></div>`;
+  }
+  return card(`${cap(NAMES[base])} → binaire`, `<div class="scroll-x"><div class="grp">${g}</div></div>`,
+    `Raccourci : chaque chiffre est écrit sur ${size} bits.`);
+}
+
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ---------- Mise à jour principale ---------- */
+function cardsFor(str, n, t) {
+  if (t === from) return [];
+  const out = [];
+  if (from !== 10) out.push(positionalCard(str, from));
+  if (t !== 10) out.push(divisionCard(n, t));
+  /* Raccourci en plus de la méthode complète */
+  if (from === 2 && (t === 8 || t === 16)) out.push(groupsCard(str, t === 8 ? 3 : 4, t));
+  if (t === 2 && (from === 8 || from === 16)) out.push(expandCard(str, from));
+  return out;
+}
+
+function renderAll(n) {
+  let html = '';
+  [2, 8, 10, 16].forEach(b => {
+    const cls = b === from ? ' src' : b === to ? ' sel' : '';
+    const v = n === null ? '0' : toBase(n, b);
+    html += `<div class="res-item${cls}" data-val="${v}"><span class="res-label">${cap(NAMES[b])} (base ${b})</span><span class="res-val">${v}</span></div>`;
+  });
+  $('allRes').innerHTML = html;
+}
+
+function update() {
+  const input = $('numInput');
+  const str = clean(input.value, from);
+  if (str !== input.value) input.value = str;
+
+  $('resLabel').textContent = 'En ' + NAMES[to];
+  const det = $('details');
+
+  if (!str) {
+    $('resVal').textContent = '0';
+    renderAll(null);
+    det.innerHTML = card('Détail du calcul', '<p class="empty">Choisissez la base de départ, entrez un nombre : toutes les conversions et leurs étapes s\'affichent ici.</p>');
+    return;
+  }
+
+  const n = parseBig(str, from);
+  $('resVal').textContent = toBase(n, to);
+  renderAll(n);
+
+  const order = [to, ...[2, 8, 10, 16].filter(b => b !== to)];
+  const seen = new Set(); let html = '';
+  order.forEach(t => cardsFor(str, n, t).forEach(c => { if (!seen.has(c)) { seen.add(c); html += c; } }));
+  det.innerHTML = html || card('Détail du calcul', '<p class="empty">Aucun calcul à afficher.</p>');
+}
+
+function setSeg(segId, value) {
+  document.querySelectorAll('#' + segId + ' button').forEach(b => b.classList.toggle('active', +b.dataset.b === value));
+}
+
+/* ---------- Opérations bits ---------- */
+const onlyBits = s => s.replace(/[^01]/g, '');
+const toBig = bits => BigInt('0b' + (bits || '0'));
+
+function performBitwise(op) {
+  const a = onlyBits($('valA').value), b = onlyBits($('valB').value);
+  $('valA').value = a; $('valB').value = b;
+  if (!a || !b) {
+    $('opError').textContent = 'Entrez une valeur binaire dans A et B.';
+    $('resBin').textContent = '-'; $('resOpDec').textContent = '-';
+    return;
+  }
+  $('opError').textContent = '';
+  const x = toBig(a), y = toBig(b);
+  const r = op === 'AND' ? x & y : op === 'OR' ? x | y : op === 'XOR' ? x ^ y : x + y;
+  $('resBin').textContent = r.toString(2);
+  $('resOpDec').textContent = r.toString(10);
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  $('view-converter').style.display = name === 'converter' ? 'block' : 'none';
+  $('view-operations').style.display = name === 'operations' ? 'block' : 'none';
+}
+
+/* ---------- Événements ---------- */
+document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab, b)));
+$('segFrom').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  from = +b.dataset.b; setSeg('segFrom', from);
+  $('numInput').value = ''; buildKeyboard(); update();
+});
+$('segTo').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  to = +b.dataset.b; setSeg('segTo', to); update();
+});
+$('keyboard').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (b) pressKey(b.dataset.key);
+});
+$('numInput').addEventListener('input', update);
+$('allRes').addEventListener('click', e => { const r = e.target.closest('.res-item'); if (r) copyText(r.dataset.val); });
+$('resBox').addEventListener('click', () => copyText($('resVal').textContent));
+document.querySelectorAll('.calc-btn').forEach(b => b.addEventListener('click', () => performBitwise(b.dataset.op)));
+document.querySelectorAll('[data-copy]').forEach(el => el.addEventListener('click', () => copyText($(el.dataset.copy).textContent)));
+['valA', 'valB'].forEach(id => $(id).addEventListener('input', e => { e.target.value = onlyBits(e.target.value); }));
+
+buildKeyboard();
+update();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
